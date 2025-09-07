@@ -116,7 +116,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="h-[95%] w-full flex items-center justify-center flex-col">
+    <div className="h-full w-full flex items-center justify-center flex-col">
       <Sidebar >
         <div className="px-2 flex flex-col h-full justify-between">
           <div>
