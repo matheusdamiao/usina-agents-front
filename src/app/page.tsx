@@ -1,103 +1,127 @@
-import Image from "next/image";
+// app/page.tsx
+"use client";
 
-export default function Home() {
+import { Button } from "@/components/ui/button";
+import { Sidebar, SidebarTrigger } from "@/components/ui/sidebar";
+import { useState } from "react";
+
+type Message = { role: "user" | "assistant"; text: string };
+type Agent = { id: string; label: string };
+
+export default function ChatPage() {
+  // Available agents
+  const agents: Agent[] = [
+    { id: "weatherAgent", label: "Previsão do Tempo" },
+    { id: "clinicAgent", label: "Secretária de Clínica" },
+  ];
+
+  // Store chat history for each agent
+  const [chats, setChats] = useState<Record<string, Message[]>>(
+    agents.reduce((acc, agent) => ({ ...acc, [agent.id]: [] }), {})
+  );
+
+  // Current selected agent
+  const [currentAgent, setCurrentAgent] = useState<string>(agents[0].id);
+
+  const [input, setInput] = useState("");
+
+  async function sendMessage(e: React.FormEvent) {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    const userMessage = input;
+
+    // Add user message to current agent's chat
+    setChats((prev) => ({
+      ...prev,
+      [currentAgent]: [...prev[currentAgent], { role: "user", text: userMessage }],
+    }));
+
+    setInput("");
+
+    try {
+      const res = await fetch(
+        `https://rhythmic-black-petabyte.mastra.cloud/api/agents/${currentAgent}/generate`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: userMessage }),
+        }
+      );
+
+      const data = await res.json();
+      console.log("res da msg", data)
+
+      setChats((prev) => ({
+        ...prev,
+        [currentAgent]: [...prev[currentAgent], { role: "assistant", text: data.text }],
+      }));
+    } catch (err) {
+      console.error(err);
+      setChats((prev) => ({
+        ...prev,
+        [currentAgent]: [...prev[currentAgent], { role: "assistant", text: "Error contacting server." }],
+      }));
+    }
+  }
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="h-[95%] w-full flex items-center justify-center flex-col">
+      {/* Sidebar */}
+      <Sidebar>
+        <div className="px-2">
+          <div className="flex justify-between items-center">
+           <h2 className="font-bold mb-3 pt-2">Usina AI - Agentes      </h2>
+            <SidebarTrigger  className="flex-0"/>
+          </div>
+          {agents.map((agent) => (
+            <Button
+              variant="secondary"
+              key={agent.id}
+              onClick={() => setCurrentAgent(agent.id)}
+              className={`block w-full text-left px-2 py-1 rounded mb-1 hover:bg-slate-400 ${
+                currentAgent === agent.id ? "bg-slate-600 text-white" : "hover:bg-slate-400"
+              }`}
+            >
+              {agent.label}
+            </Button>
+          ))}
         </div>
+      </Sidebar>
+
+      {/* <div class="self-start">
+        {agents.find(a=> a.id === currentAgent)?.label}
+      </div> */}
+      {/* Chat Area */}
+      <main className="flex-1 flex flex-col p-4 w-full h-full max-w-[600px]">
+        <div className="flex-1 overflow-y-auto border rounded-lg p-3 mb-4 ">
+          {chats[currentAgent]?.map((m, i) => (
+            <div
+              key={i}
+              className={`mb-2 ${
+                m.role === "user" ? "text-right text-blue-600" : "text-left text-green-700"
+              }`}
+            >
+              <span className="inline-block max-w-[70%] p-2 rounded-lg bg-white shadow">
+                {m.text}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <form onSubmit={sendMessage} className="flex gap-2">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            className="flex-1 border rounded-lg p-2"
+            placeholder={`Fale com  ${agents.find((a) => a.id === currentAgent)?.label}...`}
+          />
+          <Button type="submit">
+            Enviar
+          </Button>
+        </form>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
