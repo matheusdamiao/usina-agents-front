@@ -7,13 +7,14 @@ import { getAgentMemory, setAgentMemory } from "@/lib/cookies";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import Cookies from "js-cookie";
 import { Trash2 } from "lucide-react";
+import { SquareMousePointer } from "lucide-react";
 
 type Message = { role: "user" | "assistant"; text: string };
 type Agent = { id: string; label: string };
 
 export default function ChatPage() {
   const agents: Agent[] = [
-    { id: "weatherAgent", label: "Previsão do Tempo" },
+    { id: "weatherAgent", label: "Âncora do tempo" },
     { id: "clinicAgent", label: "Secretária de Clínica" },
   ];
 
@@ -21,6 +22,7 @@ export default function ChatPage() {
     agents.reduce((acc, agent) => ({ ...acc, [agent.id]: [] }), {})
   );
 
+  const [isWelcomeScreen, setIsWelcomeScreen] = useState<boolean>(true);
   const [currentAgent, setCurrentAgent] = useState<string>(agents[0].id);
   const [input, setInput] = useState("");
   const [showResetDialog, setShowResetDialog] = useState(false);
@@ -121,14 +123,17 @@ export default function ChatPage() {
         <div className="px-2 flex flex-col h-full justify-between">
           <div>
             <div className="flex justify-between items-center">
-              <h2 className="font-bold mb-3 pt-2">Usina AI - Agentes</h2>
+              <h2 className="font-bold mb-3 pt-2" onClick={()=> setIsWelcomeScreen(true)}>Usina AI - Agentes</h2>
               <SidebarTrigger className="flex-0" />
             </div>
             {agents.map((agent) => (
               <Button
                 variant="secondary"
                 key={agent.id}
-                onClick={() => setCurrentAgent(agent.id)}
+                onClick={() => {
+                  setCurrentAgent(agent.id)
+                  setIsWelcomeScreen(false)
+                }}
                 className={`block w-full text-left px-2 py-1 rounded mb-1 hover:bg-slate-400 ${
                   currentAgent === agent.id ? "bg-slate-600 text-white" : "hover:bg-slate-400"
                 }`}
@@ -155,7 +160,18 @@ export default function ChatPage() {
       </Sidebar>
 
       <main className="flex-1 flex flex-col p-4 w-full h-full max-w-[600px]">
-        <div className="flex-1 overflow-y-auto border rounded-lg p-3 mb-4">
+        {isWelcomeScreen &&
+        <div className="flex items-center justify-center h-screen flex-col gap-6">
+          <h3 className="lg:text-4xl text-2xl text-center font-bold text-gray-700">Bem-vindo(a) à Usina AI Labs!</h3>
+          <p className="text-center lg:text-xl text-sm text-gray-600">Este é um ambiente interativo construído exclusivamente para você conversar e conhecer alguns de nossos agentes. <br /> Fique à vontade para explorar! </p>
+          <div className="flex flex-col gap-2 w-[80%] pt-6">
+            <p className="inline-flex items-start lg:gap-4 gap-2 lg:text-lg text-xs text-gray-500"><SquareMousePointer size='30'/>Navegue pelos agentes através do menu da esquerda e converse em tempo real </p>
+            <small className="inline-flex  items-start lg:gap-4 gap-2 lg:text-lg text-xs text-gray-500"><Trash2 size='30'/>Todo o histórico de conversas pode ser excluídas através do botão inferior do menu</small>
+          </div>
+        </div>
+        }
+        {!isWelcomeScreen &&
+         <div className="flex-1 overflow-y-auto border rounded-lg p-3 mb-4">
           {chats[currentAgent]?.map((m, i) => (
             <div
               key={i}
@@ -171,8 +187,9 @@ export default function ChatPage() {
             </div>
           ))}
         </div>
-
-        <form onSubmit={sendMessage} className="flex gap-2">
+        }
+        {!isWelcomeScreen &&
+         <form onSubmit={sendMessage} className="flex gap-2">
           <input
             type="text"
             value={input}
@@ -184,6 +201,7 @@ export default function ChatPage() {
           />
           <Button type="submit">Enviar</Button>
         </form>
+        }
       </main>
 
        <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
