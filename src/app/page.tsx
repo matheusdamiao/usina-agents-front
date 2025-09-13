@@ -16,6 +16,7 @@ export default function ChatPage() {
   const agents: Agent[] = [
     { id: "weatherAgent", label: "Âncora do tempo" },
     { id: "clinicAgent", label: "Secretária de Clínica" },
+    { id: "realEstateAgent", label: "Corretor Imobiliário" },
   ];
 
   const [chats, setChats] = useState<Record<string, Message[]>>(
@@ -84,6 +85,7 @@ export default function ChatPage() {
       );
 
       const data = await res.json();
+      console.log('data', data)
       setChats((prev) => ({
         ...prev,
         [currentAgent]: [...prev[currentAgent], { role: "assistant", text: data.text }],
@@ -94,7 +96,7 @@ export default function ChatPage() {
         ...prev,
         [currentAgent]: [
           ...prev[currentAgent],
-          { role: "assistant", text: "Error contacting server." },
+          { role: "assistant", text: "Erro ao carregar as mensagens." },
         ],
       }));
     }
@@ -161,7 +163,7 @@ export default function ChatPage() {
 
       <main className="flex-1 flex flex-col p-4 w-full h-full max-w-[600px]">
         {isWelcomeScreen &&
-        <div className="flex items-center justify-center h-screen flex-col gap-6">
+        <div className="flex items-center justify-center h-[100svh] flex-col gap-6">
           <h3 className="lg:text-4xl text-2xl text-center font-bold text-gray-700">Bem-vindo(a) à Usina AI Labs!</h3>
           <p className="text-center lg:text-xl text-sm text-gray-600">Este é um ambiente interativo construído exclusivamente para você conversar e conhecer alguns de nossos agentes. <br /> Fique à vontade para explorar! </p>
           <div className="flex flex-col gap-2 w-[80%] pt-6">
@@ -183,6 +185,7 @@ export default function ChatPage() {
                  ${m.role === "user" ? "bg-blue-400 text-white": "bg-blue-100/50"}
                 `}>
                 {m.text}
+                {/* <small>{m.}</small> */}
               </span>
             </div>
           ))}

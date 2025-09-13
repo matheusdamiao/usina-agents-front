@@ -14,7 +14,7 @@ export function AppSidebar() {
   return (
      <>
       {/* Always visible trigger (on mobile + desktop) */}
-      <div className="p-2 bg-gray-100 h-screen">
+      <div className="p-2 bg-gray-100 h-[100svh]">
         <BotMessageSquare
           color="black"
           className="w-6 h-6  cursor-pointer"
