@@ -42,7 +42,7 @@ export default function ChatPage() {
 
     // fetch messages from API
     fetch(
-      `https://rhythmic-black-petabyte.mastra.cloud/api/memory/threads/${memory.thread}/messages?agentId=${currentAgent}`
+      `https://usina-ai-agents.onrender.com/api/memory/threads/${memory.thread}/messages?agentId=${currentAgent}`
     )
       .then((res) => res.json())
       .then((data) => {
@@ -71,7 +71,7 @@ export default function ChatPage() {
 
     try {
       const res = await fetch(
-        `https://rhythmic-black-petabyte.mastra.cloud/api/agents/${currentAgent}/generate`,
+        `https://usina-ai-agents.onrender.com/api/agents/${currentAgent}/generate/vnext`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
