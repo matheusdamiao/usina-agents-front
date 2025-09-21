@@ -8,15 +8,20 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import Cookies from "js-cookie";
 import { Trash2 } from "lucide-react";
 import { SquareMousePointer } from "lucide-react";
+import corretora from './../../public/images/corretora.png'
+import secretaria from './../../public/images/secretaria.png'
+import ancora from './../../public/images/ancora.png'
+
+
 
 type Message = { role: "user" | "assistant"; text: string };
-type Agent = { id: string; label: string };
+type Agent = { id: string; label: string, photo?: string, description?: string };
 
 export default function ChatPage() {
   const agents: Agent[] = [
-    { id: "weatherAgent", label: "Âncora do tempo" },
-    { id: "clinicAgent", label: "Secretária de Clínica" },
-    { id: "realEstateAgent", label: "Corretor Imobiliário" },
+    { id: "weatherAgent", label: "João", photo: ancora.src, description: "Meteorologista" },
+    { id: "clinicAgent", label: "Rosana", photo: secretaria.src, description: "Secretária de Clínica" },
+    { id: "realEstateAgent", label: "Roberta", photo: corretora.src, description: 'Corretora imobiliária' },
   ];
 
   const [chats, setChats] = useState<Record<string, Message[]>>(
@@ -125,23 +130,34 @@ export default function ChatPage() {
         <div className="px-2 flex flex-col h-full justify-between">
           <div>
             <div className="flex justify-between items-center">
-              <h2 className="font-bold mb-3 pt-2" onClick={()=> setIsWelcomeScreen(true)}>Usina AI - Agentes</h2>
+              <h2 className="font-bold mb-3 pt-2 cursor-pointer" onClick={()=> setIsWelcomeScreen(true)}>Usina AI - Agentes</h2>
               <SidebarTrigger className="flex-0" />
             </div>
             {agents.map((agent) => (
-              <Button
-                variant="secondary"
-                key={agent.id}
-                onClick={() => {
-                  setCurrentAgent(agent.id)
-                  setIsWelcomeScreen(false)
-                }}
-                className={`block w-full text-left px-2 py-1 rounded mb-1 hover:bg-slate-400 ${
-                  currentAgent === agent.id ? "bg-slate-600 text-white" : "hover:bg-slate-400"
-                }`}
-              >
-                {agent.label}
-              </Button>
+             
+                
+                <Button
+                  variant="secondary"
+                 key={agent.id}
+                  onClick={() => {
+                    setCurrentAgent(agent.id)
+                    setIsWelcomeScreen(false)
+                  }}
+                  className={`flex justify-start h-min w-full text-left px-2 py-1 rounded mb-1 hover:bg-slate-400 ${
+                    currentAgent === agent.id ? "bg-slate-600 text-white" : "hover:bg-slate-400"
+                  }`}
+                >
+                 
+                  <img src={agent.photo ? agent.photo : undefined} className="max-w-[30px]" alt="" />
+                  <div>
+                      <p className="margin-0">{agent.label}</p>
+                    <small  className={`flex justify-start h-min w-full text-left font-normal ${
+                    currentAgent === agent.id ? "text-gray-200" : "text-gray-500 "
+                  }`}>{agent.description}</small>
+                  </div>
+                
+                </Button>
+               
             ))}
           </div>
           <SidebarFooter>
