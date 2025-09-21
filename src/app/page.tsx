@@ -42,12 +42,12 @@ export default function ChatPage() {
 
     // fetch messages from API
     fetch(
-      `https://usina-ai-agents.onrender.com/api/memory/threads/${memory.thread}/messages?agentId=${currentAgent}`
+      `https://rhythmic-black-petabyte.mastra.cloud/api/memory/threads/${memory.thread}/messages?agentId=${currentAgent}`
     )
       .then((res) => res.json())
       .then((data) => {
         const msgs = data.uiMessages?.map((m: any) => ({
-          role: m.role === "tool" ? "assistant" : m.role, // map tools → assistant
+          role: m.role === "tool" ? "assistant" : m.role, 
           text: typeof m.content === "string" ? m.content : m.parts?.[0]?.text || "",
         }));
         setChats((prev) => ({ ...prev, [currentAgent]: msgs || [] }));
@@ -71,7 +71,7 @@ export default function ChatPage() {
 
     try {
       const res = await fetch(
-        `https://usina-ai-agents.onrender.com/api/agents/${currentAgent}/generate/vnext`,
+        `https://rhythmic-black-petabyte.mastra.cloud/api/agents/${currentAgent}/generate/vnext`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
