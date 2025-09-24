@@ -11,7 +11,10 @@ import { SquareMousePointer } from "lucide-react";
 import corretora from './../../public/images/corretora.png'
 import secretaria from './../../public/images/secretaria.png'
 import ancora from './../../public/images/ancora.png'
+import realestate from './../../public/images/real-agent-development.png'
 
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 
 type Message = { role: "user" | "assistant"; text: string };
@@ -19,6 +22,7 @@ type Agent = { id: string; label: string, photo?: string, description?: string }
 
 export default function ChatPage() {
   const agents: Agent[] = [
+    { id: "realEstateDevelopmentAgent", label: "Tony", photo: realestate.src, description: "Lançamento imobiliário"},
     { id: "weatherAgent", label: "João", photo: ancora.src, description: "Meteorologista" },
     { id: "clinicAgent", label: "Rosana", photo: secretaria.src, description: "Secretária de Clínica" },
     { id: "realEstateAgent", label: "Roberta", photo: corretora.src, description: 'Corretora imobiliária' },
@@ -197,10 +201,12 @@ export default function ChatPage() {
                 m.role === "user" ? "text-right  text-blue-600" : "text-left text-gray-500"
               }`}
             >
-              <span className={`inline-block max-w-[70%] p-2 rounded-lg shadow
+              <span className={`inline-block max-w-[70%] p-2 rounded-lg shadow text-wrap
                  ${m.role === "user" ? "bg-blue-400 text-white": "bg-blue-100/50"}
                 `}>
-                {m.text}
+                  
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.text}</ReactMarkdown>
+               
                 {/* <small>{m.}</small> */}
               </span>
             </div>
