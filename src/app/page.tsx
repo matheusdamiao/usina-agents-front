@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Sidebar, SidebarFooter, SidebarTrigger } from "@/components/ui/sidebar";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getAgentMemory, setAgentMemory } from "@/lib/cookies";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import Cookies from "js-cookie";
@@ -28,6 +28,14 @@ export default function ChatPage() {
     { id: "realEstateAgent", label: "Roberta", photo: corretora.src, description: 'Corretora imobiliária' },
   ];
 
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+ 
+
   const [chats, setChats] = useState<Record<string, Message[]>>(
     agents.reduce((acc, agent) => ({ ...acc, [agent.id]: [] }), {})
   );
@@ -36,6 +44,14 @@ export default function ChatPage() {
   const [currentAgent, setCurrentAgent] = useState<string>(agents[0].id);
   const [input, setInput] = useState("");
   const [showResetDialog, setShowResetDialog] = useState(false);
+
+
+   useEffect(() => {
+    scrollToBottom();
+    }, [chats, currentAgent]);
+
+
+
   // Load messages from cookie+API on agent change
   useEffect(() => {
     const memory = getAgentMemory(currentAgent);
@@ -211,6 +227,7 @@ export default function ChatPage() {
               </span>
             </div>
           ))}
+           <div ref={messagesEndRef} />
         </div>
         }
         {!isWelcomeScreen &&
